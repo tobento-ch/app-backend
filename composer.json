@@ -1,0 +1,55 @@
+{
+    "name": "tobento/app-backend",
+    "type": "library",
+    "description": "App backend.",
+    "keywords": [
+        "tobento",
+        "package",
+        "app",
+        "backend"
+	],
+    "homepage": "https://www.tobento.ch",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Tobias Strub",
+            "email": "info@tobento.ch",
+            "homepage": "https://www.tobento.ch"
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require": {
+        "php": ">=8.0",
+        "tobento/app": "^1.0.7",
+        "tobento/apps": "^1.0",
+        "tobento/app-cache": "^1.0",
+        "tobento/app-card": "^1.0",
+        "tobento/app-crud": "^1.0",
+        "tobento/app-media": "^1.0",
+        "tobento/app-search": "^1.0",
+        "tobento/app-user-web": "^1.0",
+        "tobento/js-editor": "^1.0",
+        "tobento/css-modal": "^1.0"
+    },  
+    "require-dev": {
+        "phpunit/phpunit": "^9.5",
+        "vimeo/psalm": "^4.0",
+        "tobento/app-profiler": "^1.0",
+        "tobento/app-testing": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Tobento\\App\\Backend\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tobento\\App\\Backend\\Test\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "phpunit --testdox --colors=always",
+        "psalm": "vendor/bin/psalm"
+    }
+}
