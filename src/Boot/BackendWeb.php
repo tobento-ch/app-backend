@@ -66,8 +66,8 @@ class BackendWeb extends Boot
             ): void {
                 if ($acl->can('backend')) {
                     $menus->menu('main')
-                        ->add((new LinkToFirstChild($menus->menu('main'), trans('Settings')))
-                        ->id('settings')
+                        ->add((new LinkToFirstChild($menus->menu('main'), trans('Administration')))
+                        ->id('administration')
                         ->order(100));
                     
                     // Language:           
