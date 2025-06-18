@@ -109,7 +109,7 @@ class Users extends Boot
                 if ($acl->can('users')) {
                     $menus->menu('main')
                         ->link($router->url('users.index'), 'Users')
-                        ->parent('settings')
+                        ->parent('administration')
                         ->id('users.index');
                 }
                 

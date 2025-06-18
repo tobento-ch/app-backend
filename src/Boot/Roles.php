@@ -107,7 +107,7 @@ class Roles extends Boot
                 if ($acl->can('roles')) {
                     $menus->menu('main')
                         ->link($router->url('roles.index'), trans('Roles'))
-                        ->parent('settings')
+                        ->parent('administration')
                         ->id('roles.index');
                 }
             }
