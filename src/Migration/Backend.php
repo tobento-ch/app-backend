@@ -82,7 +82,6 @@ class Backend implements MigrationInterface
                 $resources.'views/dashboard.php',
             ],
             $this->dirs->get('views').'user/' => [
-                $resources.'views/user/home.php',
                 $resources.'views/user/login.php',
                 $resources.'views/user/register.php',
                 $resources.'views/user/twofactor-code.php',
