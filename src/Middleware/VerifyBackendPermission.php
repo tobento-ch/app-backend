@@ -30,6 +30,7 @@ class VerifyBackendPermission extends VerifyPermission
      * Create a new VerifyBackendPermission.
      *
      * @param AclInterface $acl
+     * @param array<array-key, string> $exceptRoutes
      * @param null|string $permission
      * @param string $message
      * @param string $messageLevel
@@ -37,8 +38,8 @@ class VerifyBackendPermission extends VerifyPermission
      * @param null|string $redirectRoute
      */
     public function __construct(
-        protected array $exceptRoutes = [],
         protected AclInterface $acl,
+        protected array $exceptRoutes = [],
         protected null|string $permission = 'backend',
         protected string $message = '',
         protected string $messageLevel = '',
