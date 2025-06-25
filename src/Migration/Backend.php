@@ -66,7 +66,9 @@ class Backend implements MigrationInterface
             ],
             $this->dirs->get('views').'icons/' => [
                 $resources.'views/icons/apps.svg',
+                $resources.'views/icons/home.svg',
                 $resources.'views/icons/language.svg',
+                $resources.'views/icons/lock.svg',
                 $resources.'views/icons/menu.svg',
                 $resources.'views/icons/moon.svg',
                 $resources.'views/icons/sun-moon.svg',
