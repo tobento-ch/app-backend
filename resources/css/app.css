@@ -44,6 +44,9 @@
   background: var(--color-white);
 }
 .page-nav {
+  --color-click: light-dark(#D12673, #FC8FAE);
+  --color-active: light-dark(#506427, #59D334);
+
   grid-area: nav;
   min-height: 100vh;
   overflow-y: auto;
@@ -150,6 +153,7 @@
 
 /* Misc */
 .lined {border-bottom: 1px solid var(--color-black);}
+.fragment {position: relative; display: block; top: -4rem;}
 
 /* Section */
 .section {display: flex; flex-direction: column;}
