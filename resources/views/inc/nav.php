@@ -28,7 +28,7 @@ $mainMenu->on($activeMenu, function($item, $menu) {
 });
 
 $mainMenu->sort(fn ($a, $b) => $a->text() <=> $b->text());
-$mainMenu->sort(fn ($a, $b) => $a->getOrder() <=> $b->getOrder());
+$mainMenu->sort(fn ($a, $b) => $b->getOrder() <=> $a->getOrder());
 
 // show only active items tree:
 $mainMenu->active($activeMenu);
