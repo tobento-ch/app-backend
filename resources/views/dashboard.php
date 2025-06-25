@@ -8,7 +8,6 @@
         <?= $view->render('inc/head') ?>
         <?= $view->assets()->render() ?>
         <?php
-        $view->asset('assets/card/card.css');
         $view->asset('assets/card/card.js')->attr('type', 'module');
         ?>
     </head>
@@ -24,7 +23,7 @@
 
             <h1 class="title text-xl"><?= $view->etrans('Dashboard') ?></h1>
             
-            <div class="cards mt-s">
+            <div class="cards cards-large fit mt-s" data-min-width="700px">
                 <?php foreach($cards as $card) { ?>
                     <?= $card->render() ?>
                 <?php } ?>
