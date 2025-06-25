@@ -50,7 +50,9 @@ class Dashboard extends Boot
             static function(MenusInterface $menus, RouterInterface $router) {
                 $menus->menu('main')
                     ->link($router->url('home'), trans('Dashboard'))
-                    ->id('home');
+                    ->id('home')
+                    ->icon('home')
+                    ->order(10000);
             }
         );
     }

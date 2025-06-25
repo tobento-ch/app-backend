@@ -67,8 +67,7 @@ class BackendWeb extends Boot
                 if ($acl->can('backend')) {
                     $menus->menu('main')
                         ->add((new LinkToFirstChild($menus->menu('main'), trans('Administration')))
-                        ->id('administration')
-                        ->order(100));
+                        ->id('administration')->icon('lock'));
                     
                     // Language:           
                     $menus->menu('footer')->item(trans('Language'))->icon('language')->id('language');
