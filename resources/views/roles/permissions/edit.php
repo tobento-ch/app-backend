@@ -17,8 +17,8 @@ $permissionsMenu->tag('ul')->level(0)->class('menu-v spaced menu-main');
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title><?= $view->etrans('Role Permissions') ?></title>
-        <meta name="description" content="<?= $view->etrans('Role Permissions') ?>">
+        <title><?= $view->esc($title) ?></title>
+        <meta name="description" content="<?= $view->esc($title) ?>">
         <?= $view->render('inc/head') ?>
         <?= $view->assets()->render() ?>
     </head>
@@ -36,17 +36,13 @@ $permissionsMenu->tag('ul')->level(0)->class('menu-v spaced menu-main');
             <?= $view->render('inc.breadcrumb') ?>
             <?= $view->render('inc.messages') ?>
 
-            <h1 class="text-xl"><?= $view->esc($role->name()) ?> <?= $view->etrans('permissions') ?></h1>
+            <h1 class="text-xl"><?= $view->esc($title) ?></h1>
             
             <?php $form = $view->form(); ?>
-            
-            <?= $form->form([
-                'action' => $view->routeUrl('roles.permissions.update', ['id' => $role->id()]),
-                'method' => 'PUT',
-            ]) ?>
+            <?= $form->form(['action' => $formAction, 'method' => 'PUT']) ?>
             
             <div class="sticky-controls buttons spaced pt-xs mb-xs">
-                <a href="<?= $view->routeUrl('roles.index') ?>" class="button text-xs"><?= $view->etrans('Cancel') ?></a>
+                <a href="<?= $view->esc($cancelUrl) ?>" class="button text-xs"><?= $view->etrans('Cancel') ?></a>
                 <button class="button text-xs primary"><?= $view->etrans('Save') ?></button>
             </div>
             
@@ -54,7 +50,7 @@ $permissionsMenu->tag('ul')->level(0)->class('menu-v spaced menu-main');
                 <?php foreach($areas as $area => $rules) { ?>
                     <div class="section">
                         <h2 class="section-title"><?= $view->etrans(':name area', [':name' => $area]) ?></h2>
-                        <?php foreach($rules as $key => $rule) { ?>
+                        <?php foreach(array_values($rules) as $key => $rule) { ?>
                             <a class="fragment" id="<?= $view->esc($rule->getKey()) ?>"></a>
                             <?php $class = str_contains($rule->getKey(), '.') ? ' pl-m' : ''; ?>
                             <div class="cols mb-s<?= $class ?>">
