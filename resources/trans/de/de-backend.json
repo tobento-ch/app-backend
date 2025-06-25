@@ -1,5 +1,6 @@
 {
     ":name area": ":name Bereich",
+    ":name permissions": ":name Berechtigungen",
     "Account": "Konto",
     "Active": "Aktiv",
     "Administration": "Administration",
@@ -27,6 +28,7 @@
     "Name": "Name",
     "New Role": "Neue Rolle",
     "New User": "Neuer Benutzer",
+    "No": "Nein",
     "Pagination": "Pagination",
     "Registration Date": "Anmeldedatum",
     "Role": "Rolle",
@@ -50,5 +52,6 @@
     "User can edit users.": "Der Benutzer kann Benutzer bearbeiten.",
     "Users": "Benutzer",
     "When enabled, your account is secured with Two-Factor Authentication.": "Wenn aktiviert, ist Ihr Konto mit der Zwei-Faktor-Authentifizierung gesichert.",
-    "permissions": "Berechtigungen"
+    "permissions": "Berechtigungen",
+    "Yes": "Ja"
 }

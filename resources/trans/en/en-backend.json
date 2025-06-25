@@ -1,5 +1,6 @@
 {
     ":name area": ":name area",
+    ":name permissions": ":name permissions",
     "Account": "Account",
     "Active": "Active",
     "Administration": "Administration",
@@ -27,6 +28,7 @@
     "Name": "Name",
     "New Role": "New Role",
     "New User": "New User",
+    "No": "No",
     "Pagination": "Pagination",
     "Registration Date": "Registration Date",
     "Role": "Role",
@@ -50,5 +52,6 @@
     "User can edit users.": "User can edit users.",
     "Users": "Users",
     "When enabled, your account is secured with Two-Factor Authentication.": "When enabled, your account is secured with Two-Factor Authentication.",
-    "permissions": "permissions"
+    "permissions": "permissions",
+    "Yes": "Yes"
 }
