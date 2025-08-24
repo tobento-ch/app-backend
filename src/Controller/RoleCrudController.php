@@ -64,12 +64,17 @@ class RoleCrudController extends AbstractCrudController
     {
         return [
             Field\PrimaryId::new('id'),
+            
             Field\Radios::new(name: 'active', label: trans('Active'))
                 ->group(trans('General'))
                 ->options(['0' => trans('Inactive'), '1' => trans('Active')])
                 ->selected('1')
                 ->validate('required|bool')
-                ->displayInline(),
+                ->displayInline()
+                ->formatValue(new Field\Formatter\Badge(
+                    classes: ['0' => 'text-error', '1' => 'text-success'],
+                )),
+            
             Field\Text::new(name: 'key', label: trans('Key'))
                 ->group(trans('General'))
                 ->validate([
@@ -87,16 +92,19 @@ class RoleCrudController extends AbstractCrudController
                         errorMessage: 'Key exists already.',
                     ),
                 ]),
+            
             Field\Text::new(name: 'name', label: trans('Name'))
                 ->group(trans('General'))
                 ->validate('required|string|minLen:2|maxLen:100'),
-            Field\Checkboxes::new('areas', trans('Areas'))
+            
+            Field\Checkboxes::new(name: 'areas', label: trans('Areas'))
                 ->group(trans('General'))
                 ->options(['backend' => 'Backend'])
                 ->selected(['backend']),
-                //->indexable(false),
-            Field\Text::new('permissions')
-                ->indexable(false)
+            
+            Field\Checkboxes::new(name: 'permissions', label: trans('Permissions'))
+                ->formatValue(new Field\Formatter\Badge(limit: 5), 'index')
+                ->formatValue(new Field\Formatter\Badge(), 'show')
                 ->creatable(false)
                 ->editable(false),
         ];
@@ -130,16 +138,22 @@ class RoleCrudController extends AbstractCrudController
                 ->displayButtonIf('delete', fn (EntityInterface $entity): bool =>
                     !in_array($entity->get('key'), ['administrator'])
                 ),
+            
             Action\Create::new(title: trans('New Role')),
+            
             Action\Store::new(),
+            
             Action\Edit::new(title: trans('Edit Role')),
-            //Action\Copy::new(title: trans('Copy Role')),
+            
             Action\Update::new(),
+            
             Action\Delete::new()
                 ->undeletable(fn (EntityInterface $entity): bool => in_array($entity->get('key'), ['administrator'])),
+            
             Action\BulkDelete::new(),
-            //Action\BulkEdit::new(),
+            
             Action\Show::new(title: trans('Show Role')),
+            
             Action\ShowJson::new(),
         ];
     }
@@ -154,15 +168,23 @@ class RoleCrudController extends AbstractCrudController
     {
         return [
             ...Filter\Fields::new()->fields($action->fields())->toFilters(),
+            
             Filter\FieldsSortOrder::new(),
+            
             Filter\ModalButton::new()->group('header'),
+            
             Filter\Group::new(name: 'group-columns')->group('modal')->label(trans('Columns'))->open(false),
-            Filter\Columns::new()->group('group-columns'),
+            
+            Filter\Columns::new()
+                ->group('group-columns')
+                ->default('name', 'key', 'active', 'actions'),
+            
             Filter\Group::new(name: 'group-pagination')->group('modal')->label(trans('Pagination'))->open(false),
+            
             Filter\PaginationItemsPerPage::new()
                 ->group('group-pagination')
                 ->open(false),
-            //Filter\Pagination::new()->group('header'),
+            
             Filter\Pagination::new()->group('footer'),
         ];
     }
