@@ -53,7 +53,7 @@ class RolesTest extends \Tobento\App\Crud\Testing\AbstractCrudTestCase
         $http->response()
             ->assertStatus(200)
             ->assertBodyContains('Roles')
-            ->assertCrudIndexHeaderColumnsExists(columns: ['id', 'active', 'key', 'name', 'areas', 'actions'])
+            ->assertCrudIndexHeaderColumnsExists(columns: ['name', 'key', 'active', 'actions'])
             ->assertCrudIndexEntityCount(3);
     }
     

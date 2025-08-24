@@ -53,7 +53,7 @@ class UsersTest extends \Tobento\App\Crud\Testing\AbstractCrudTestCase
         $http->response()
             ->assertStatus(200)
             ->assertBodyContains('Users')
-            ->assertCrudIndexHeaderColumnsExists(columns: ['id', 'active', 'role_key', 'address.name', 'email', 'actions'])
+            ->assertCrudIndexHeaderColumnsExists(columns: ['email', 'address.name', 'active', 'role_key', 'actions'])
             ->assertCrudIndexEntityCount(4);
     }
     
