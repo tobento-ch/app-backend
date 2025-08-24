@@ -108,7 +108,7 @@ class Users extends Boot
             static function(MenusInterface $menus, AclInterface $acl, RouterInterface $router, AuthInterface $auth): void {
                 if ($acl->can('users')) {
                     $menus->menu('main')
-                        ->link($router->url('users.index'), 'Users')
+                        ->link($router->url('users.index'), trans('Users'))
                         ->parent('administration')
                         ->id('users.index');
                 }
@@ -117,7 +117,7 @@ class Users extends Boot
 
                 if ($userId) {
                     $menus->menu('header')
-                        ->link($router->url('users.edit', ['id' => $userId]), 'Profile')
+                        ->link($router->url('users.edit', ['id' => $userId]), trans('Profile'))
                         ->id('profile-edit')
                         ->parent('profile')
                         ->order(1000);                    
