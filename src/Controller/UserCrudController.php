@@ -61,6 +61,7 @@ class UserCrudController extends AbstractCrudController
         protected AddressRepositoryInterface $addressRepository,
         protected AclInterface $acl,
         protected ServerRequestInterface $request,
+        protected AvailableChannelsInterface $channels,
     ) {
         $this->repository = $repository;
     }
@@ -233,30 +234,14 @@ class UserCrudController extends AbstractCrudController
                         ->withTitle('storage', trans('Account'))
                         ->sortByTitle()
                 )
-                ->process(
-                    action: 'index',
-                    processor: function (FieldInterface $field, AvailableChannelsInterface $channels): void {
-                        $channelNames = $field->entity()->get($field->name(), []);
-                        $titles = $channels->only($channelNames)->withTitle('storage', trans('Account'))->titlesToString();
-                        $field->html(Str::esc($titles));
-                    }
-                )
-                ->process(
-                    action: 'show',
-                    processor: function (FieldInterface $field, AvailableChannelsInterface $channels, ViewInterface $view): void {
-                        $channelNames = $field->entity()->get($field->name(), []);
-                        $titles = $channels->only($channelNames)->withTitle('storage', trans('Account'))->titlesToString();
-
-                        $field->html($view->render(
-                            view: 'crud/field/show/field',
-                            data: [
-                                'field' => $field,
-                                'entity' => $field->entity(),
-                                'renderLabel' => true,
-                                'text' => $titles,
-                            ],
-                        ));
-                    }
+                ->formatValue(
+                    formatter: function(mixed $value): string {
+                        if (!is_array($value)) {
+                            return '';
+                        }
+                        
+                        return $this->channels->only($value)->withTitle('storage', trans('Account'))->titlesToString();
+                    },
                 ),
             
             Field\Radios::new(name: 'settings.twofactor', label: trans('Two-Factor Authentication'))
