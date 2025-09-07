@@ -69,7 +69,7 @@ $permissionsMenu->tag('ul')->level(0)->class('menu-v spaced menu-main');
                                 withInput: true,
                                 wrapClass: 'wrap-h'
                             ) ?>
-                            <p class="text-xxs"><?= $view->etrans('If "Yes", the specific user rights get applied, otherwise the role rights.') ?></p>
+                            <p class="text-xxs mt-xs"><?= $view->etrans('If "Yes", the specific user rights get applied, otherwise the role rights.') ?></p>
                         </div>
                     </div>
                 </div>
