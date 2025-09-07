@@ -15,6 +15,7 @@ namespace Tobento\App\Backend\Boot;
 
 use Psr\SimpleCache\CacheInterface;
 use Tobento\Apps\AppsInterface;
+use Tobento\App\AppInterface;
 use Tobento\App\Boot;
 use Tobento\Service\Menu\MenusInterface;
 use function Tobento\App\Translation\trans;
@@ -40,7 +41,7 @@ class Apps extends Boot
         // Menu:
         $this->app->on(
             MenusInterface::class,
-            static function(MenusInterface $menus, AppsInterface $apps, CacheInterface $cache): void {
+            static function(MenusInterface $menus, AppInterface $application, AppsInterface $apps, CacheInterface $cache): void {
                 $menus->menu('header')->item(trans('Apps'))
                     ->icon('apps')
                     ->id('apps-header')
@@ -67,6 +68,8 @@ class Apps extends Boot
                     }
                     
                     $cache->set(key: 'apps', value: $appsData, ttl: new \DateInterval('P1D'));
+                    
+                    $apps->bootingApp($application);
                 }
                 
                 foreach($appsData as $appId => $app) {
