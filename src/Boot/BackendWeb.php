@@ -46,10 +46,9 @@ class BackendWeb extends Boot
      * Boot application services.
      *
      * @param Acl $acl
-     * @param Crud $crud
      * @return void
      */
-    public function boot(Acl $acl, Crud $crud): void
+    public function boot(Acl $acl): void
     {
         // Acl:
         $acl->acl()->setDefaultRuleArea('backend');
