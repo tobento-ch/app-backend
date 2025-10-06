@@ -92,7 +92,7 @@ class UserCrudController extends AbstractCrudController
     /**
      * Returns the configured fields.
      *
-     * @param string $actionName
+     * @param ActionInterface $action
      * @return iterable<FieldInterface>|FieldsInterface
      */
     protected function configureFields(ActionInterface $action): iterable|FieldsInterface
@@ -100,9 +100,9 @@ class UserCrudController extends AbstractCrudController
         $user = $this->request->getAttribute(AuthInterface::class)?->getAuthenticated()?->user();
         
         $fields = [
-            Field\PrimaryId::new('id'),
+            new Field\PrimaryId('id'),
             
-            Field\Radios::new(name: 'active', label: trans('Active'))
+            new Field\Radios(name: 'active', label: trans('Active'))
                 ->group(trans('Account'))
                 ->options(['0' => trans('Inactive'), '1' => trans('Active')])
                 ->selected(value: '0', action: 'create')
@@ -118,24 +118,24 @@ class UserCrudController extends AbstractCrudController
                     action: 'edit|update',
                 ),
             
-            Field\Select::new(name: 'role_key', label: trans('Role'))
+            new Field\Select(name: 'role_key', label: trans('Role'))
                 ->group(trans('Account'))
                 ->options($this->acl->roles()->area('backend')->except(['guest'])->column('name', 'key'))
                 ->disabled(disabled: fn(AclInterface $acl) => $acl->cant('users.role'), action: 'edit|update')
                 ->validate(store: 'required', update: 'sometimes|required'),
             
-            Field\Checkboxes::new(name: 'permissions', label: trans('Permissions'))
+            new Field\Checkboxes(name: 'permissions', label: trans('Permissions'))
                 ->group(trans('Account'))
                 ->formatValue(new Field\Formatter\Badge(limit: 5), 'index')
                 ->formatValue(new Field\Formatter\Badge(), 'show')
                 ->creatable(false)
                 ->editable(false),
             
-            Field\Text::new(name: 'address.name', label: trans('Name'))
+            new Field\Text(name: 'address.name', label: trans('Name'))
                 ->group(trans('Account'))
                 ->validate(store: 'required|string|maxLen:150', update: 'sometimes|required|string|maxLen:150'),
             
-            Field\Text::new(name: 'email', label: trans('E-Mail'))
+            new Field\Text(name: 'email', label: trans('E-Mail'))
                 ->group(trans('Account'))
                 ->type('email')
                 ->validate([
@@ -154,7 +154,7 @@ class UserCrudController extends AbstractCrudController
                 ])
                 ->requiredText(trans('required without smartphone')),
             
-            Field\Text::new(name: 'smartphone', label: trans('Smartphone'))
+            new Field\Text(name: 'smartphone', label: trans('Smartphone'))
                 ->group(trans('Account'))
                 ->validate([
                     'required_without:email',
@@ -174,7 +174,7 @@ class UserCrudController extends AbstractCrudController
                 ->requiredText(trans('required without e-mail'))
                 ->infoText(trans('Country code followed by the phone number, e.g. 41791234567')),
             
-            Field\Text::new('password', $action->name() === 'edit' ? trans('New Password') : trans('Password'))
+            new Field\Text('password', $action->name() === 'edit' ? trans('New Password') : trans('Password'))
                 ->group(trans('Account'))
                 ->type('password')
                 ->process(
@@ -206,27 +206,27 @@ class UserCrudController extends AbstractCrudController
                 ->value('')
                 ->attributes(['autocomplete' => 'new-password']),
             
-            Field\File::new(name: 'image', label: 'Avatar')
+            new Field\File(name: 'image', label: 'Avatar')
                 ->group(trans('Account'))
                 ->fileSource(function(Field\FileSource $fs): void {
                     $fs->allowedExtensions('jpg', 'png');
                 })
                 ->fields(
-                    Field\Text::new(name: 'alt', label: trans('Alternative Text')),
+                    new Field\Text(name: 'alt', label: trans('Alternative Text')),
                 )
                 ->storeFilenameTo('alt'),
             
-            Field\Select::new(name: 'locale', label: trans('Preferred Language'))
+            new Field\Select(name: 'locale', label: trans('Preferred Language'))
                 ->group(trans('General'))
                 ->options(fn(LanguagesInterface $languages): array => $languages->column('name', 'locale')),
             
-            Field\Text::new(name: 'date_created', label: trans('Registration Date'))
+            new Field\Text(name: 'date_created', label: trans('Registration Date'))
                 ->group(trans('General'))
                 ->type('datetime-local')
                 ->creatable(false)
                 ->formatValue(new Field\Formatter\Date(format: 'EEEE, dd. MMMM yyyy, HH:mm')),
             
-            Field\Checkboxes::new(name: 'settings.preferred_notification_channels', label: trans('Preferred Channels'))
+            new Field\Checkboxes(name: 'settings.preferred_notification_channels', label: trans('Preferred Channels'))
                 ->group(trans('Notifications'))
                 ->options(fn(AvailableChannelsInterface $channels): AvailableChannelsInterface =>
                     $channels
@@ -244,7 +244,7 @@ class UserCrudController extends AbstractCrudController
                     },
                 ),
             
-            Field\Radios::new(name: 'settings.twofactor', label: trans('Two-Factor Authentication'))
+            new Field\Radios(name: 'settings.twofactor', label: trans('Two-Factor Authentication'))
                 ->group(trans('Security'))
                 ->options(['0' => trans('Disabled'), '1' => trans('Enabled')])
                 ->selected(value: '0', action: 'create')
@@ -253,7 +253,7 @@ class UserCrudController extends AbstractCrudController
         ];
         
         if ($action->entity()->id() === $user?->id()) {
-            $fields[] = Field\Html::new(name: 'channels')
+            $fields[] = new Field\Html(name: 'channels')
                 ->content(function(ViewInterface $view, AvailableChannelsInterface $channels) use ($user): string {
                     return $view->render('user/verification/channels', [
                         'channels' => $channels,
@@ -273,47 +273,47 @@ class UserCrudController extends AbstractCrudController
      */
     protected function configureActions(): iterable|ActionsInterface
     {
-        $editPermissions = Button\Link::new(label: trans('Edit Permissions'), group: 'entity')
+        $editPermissions = new Button\Link(label: trans('Edit Permissions'), group: 'entity')
             ->name('editPermissions')
             ->linkToRoute('users.permissions.edit', function(EntityInterface $entity): array {
                 return ['id' => $entity->id()];
             });
         
         return [
-            Action\Index::new(title: trans('Users'))
+            new Action\Index(title: trans('Users'))
                 ->addButton($editPermissions)
                 ->reorderButtons('editPermissions')
                 ->removeButton('copy')
                 ->groupButtons(
                     except: ['edit'],
-                    button: Button\Dropdown::new(label: '', icon: 'dots', group: 'entity')
+                    button: new Button\Dropdown(label: '', icon: 'dots', group: 'entity')
                         ->name('more')
                         ->raw(),
                 )
                 ->displayButtonIf('editPermissions', $this->acl->can('users.permissions'))
                 ->displayButtonIf('delete', fn (EntityInterface $entity): bool => !in_array($entity->id(), [1])),
             
-            Action\Create::new(title: trans('New User'))
+            new Action\Create(title: trans('New User'))
                 ->removeButton('copy'),
             
-            Action\Store::new(),
+            new Action\Store(),
             
-            Action\Edit::new(title: trans('Edit User'))
+            new Action\Edit(title: trans('Edit User'))
                 ->removeButton('copy')
                 ->displayButtonIf('new', $this->acl->can('users.create'))
                 ->displayButtonIf('close', $this->acl->can('users'))
                 ->displayButtonIf('cancel', $this->acl->can('users')),
             
-            Action\Update::new(),
+            new Action\Update(),
             
-            Action\Delete::new()
+            new Action\Delete()
                 ->undeletable([1]),
             
-            Action\BulkDelete::new(),
+            new Action\BulkDelete(),
             
-            Action\Show::new(title: trans('Show User')),
+            new Action\Show(title: trans('Show User')),
             
-            Action\ShowJson::new(),
+            new Action\ShowJson(),
         ];
     }
     
@@ -326,29 +326,29 @@ class UserCrudController extends AbstractCrudController
     protected function configureFilters(ActionInterface $action): iterable|FiltersInterface
     {
         return [
-            ...Filter\Fields::new()->fields($action->fields())->toFilters(),
+            ...new Filter\Fields()->fields($action->fields())->toFilters(),
             
-            Filter\FieldsSortOrder::new(),
+            new Filter\FieldsSortOrder(),
             
-            Filter\ModalButton::new()->group('header'),
+            new Filter\ModalButton()->group('header'),
             
-            Filter\Group::new(name: 'group-columns')->group('modal')->label(trans('Columns'))->open(false),
+            new Filter\Group(name: 'group-columns')->group('modal')->label(trans('Columns'))->open(false),
             
-            Filter\Columns::new()
+            new Filter\Columns()
                 ->group('group-columns')
                 ->default('email', 'address.name', 'active', 'role_key', 'actions'),
             
-            Filter\Group::new(name: 'group-editable-columns')->group('modal')->label(trans('Editable Columns'))->open(false),
+            new Filter\Group(name: 'group-editable-columns')->group('modal')->label(trans('Editable Columns'))->open(false),
             
-            Filter\EditableColumns::new('active' ,'role_key', 'address.name')->group('group-editable-columns'),
+            new Filter\EditableColumns('active' ,'role_key', 'address.name')->group('group-editable-columns'),
             
-            Filter\Group::new(name: 'group-pagination')->group('modal')->label(trans('Pagination'))->open(false),
+            new Filter\Group(name: 'group-pagination')->group('modal')->label(trans('Pagination'))->open(false),
             
-            Filter\PaginationItemsPerPage::new()
+            new Filter\PaginationItemsPerPage()
                 ->group('group-pagination')
                 ->open(false),
             
-            Filter\Pagination::new()->group('footer'),
+            new Filter\Pagination()->group('footer'),
         ];
     }
 

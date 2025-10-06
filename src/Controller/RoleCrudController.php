@@ -57,15 +57,15 @@ class RoleCrudController extends AbstractCrudController
     /**
      * Returns the configured fields.
      *
-     * @param string $actionName
+     * @param ActionInterface $action
      * @return iterable<FieldInterface>|FieldsInterface
      */
     protected function configureFields(ActionInterface $action): iterable|FieldsInterface
     {
         return [
-            Field\PrimaryId::new('id'),
+            new Field\PrimaryId('id'),
             
-            Field\Radios::new(name: 'active', label: trans('Active'))
+            new Field\Radios(name: 'active', label: trans('Active'))
                 ->group(trans('General'))
                 ->options(['0' => trans('Inactive'), '1' => trans('Active')])
                 ->selected('1')
@@ -75,7 +75,7 @@ class RoleCrudController extends AbstractCrudController
                     classes: ['0' => 'text-error', '1' => 'text-success'],
                 )),
             
-            Field\Text::new(name: 'key', label: trans('Key'))
+            new Field\Text(name: 'key', label: trans('Key'))
                 ->group(trans('General'))
                 ->validate([
                     'required',
@@ -93,16 +93,16 @@ class RoleCrudController extends AbstractCrudController
                     ),
                 ]),
             
-            Field\Text::new(name: 'name', label: trans('Name'))
+            new Field\Text(name: 'name', label: trans('Name'))
                 ->group(trans('General'))
                 ->validate('required|string|minLen:2|maxLen:100'),
             
-            Field\Checkboxes::new(name: 'areas', label: trans('Areas'))
+            new Field\Checkboxes(name: 'areas', label: trans('Areas'))
                 ->group(trans('General'))
                 ->options(['backend' => 'Backend'])
                 ->selected(['backend']),
             
-            Field\Checkboxes::new(name: 'permissions', label: trans('Permissions'))
+            new Field\Checkboxes(name: 'permissions', label: trans('Permissions'))
                 ->formatValue(new Field\Formatter\Badge(limit: 5), 'index')
                 ->formatValue(new Field\Formatter\Badge(), 'show')
                 ->creatable(false)
@@ -117,20 +117,20 @@ class RoleCrudController extends AbstractCrudController
      */
     protected function configureActions(): iterable|ActionsInterface
     {
-        $editPermissions = Button\Link::new(label: trans('Edit Permissions'), group: 'entity')
+        $editPermissions = new Button\Link(label: trans('Edit Permissions'), group: 'entity')
             ->name('editPermissions')
             ->linkToRoute('roles.permissions.edit', function(EntityInterface $entity): array {
                 return ['id' => $entity->id()];
             });
         
         return [
-            Action\Index::new(title: trans('Roles'))
+            new Action\Index(title: trans('Roles'))
                 ->addButton($editPermissions)
                 ->removeButton('copy')
                 ->reorderButtons('editPermissions')
                 ->groupButtons(
                     except: ['edit'],
-                    button: Button\Dropdown::new(label: '', icon: 'dots', group: 'entity')
+                    button: new Button\Dropdown(label: '', icon: 'dots', group: 'entity')
                         ->name('more')
                         ->raw(),
                 )
@@ -139,22 +139,22 @@ class RoleCrudController extends AbstractCrudController
                     !in_array($entity->get('key'), ['administrator'])
                 ),
             
-            Action\Create::new(title: trans('New Role')),
+            new Action\Create(title: trans('New Role')),
             
-            Action\Store::new(),
+            new Action\Store(),
             
-            Action\Edit::new(title: trans('Edit Role')),
+            new Action\Edit(title: trans('Edit Role')),
             
-            Action\Update::new(),
+            new Action\Update(),
             
-            Action\Delete::new()
+            new Action\Delete()
                 ->undeletable(fn (EntityInterface $entity): bool => in_array($entity->get('key'), ['administrator'])),
             
-            Action\BulkDelete::new(),
+            new Action\BulkDelete(),
             
-            Action\Show::new(title: trans('Show Role')),
+            new Action\Show(title: trans('Show Role')),
             
-            Action\ShowJson::new(),
+            new Action\ShowJson(),
         ];
     }
     
@@ -167,25 +167,25 @@ class RoleCrudController extends AbstractCrudController
     protected function configureFilters(ActionInterface $action): iterable|FiltersInterface
     {
         return [
-            ...Filter\Fields::new()->fields($action->fields())->toFilters(),
+            ...new Filter\Fields()->fields($action->fields())->toFilters(),
             
-            Filter\FieldsSortOrder::new(),
+            new Filter\FieldsSortOrder(),
             
-            Filter\ModalButton::new()->group('header'),
+            new Filter\ModalButton()->group('header'),
             
-            Filter\Group::new(name: 'group-columns')->group('modal')->label(trans('Columns'))->open(false),
+            new Filter\Group(name: 'group-columns')->group('modal')->label(trans('Columns'))->open(false),
             
-            Filter\Columns::new()
+            new Filter\Columns()
                 ->group('group-columns')
                 ->default('name', 'key', 'active', 'actions'),
             
-            Filter\Group::new(name: 'group-pagination')->group('modal')->label(trans('Pagination'))->open(false),
+            new Filter\Group(name: 'group-pagination')->group('modal')->label(trans('Pagination'))->open(false),
             
-            Filter\PaginationItemsPerPage::new()
+            new Filter\PaginationItemsPerPage()
                 ->group('group-pagination')
                 ->open(false),
             
-            Filter\Pagination::new()->group('footer'),
+            new Filter\Pagination()->group('footer'),
         ];
     }
 }
