@@ -1,6 +1,6 @@
 {
     "name": "tobento/app-backend",
-    "version": "2.0",
+    "version": "2.0.1",
     "type": "library",
     "description": "App backend.",
     "keywords": [
