@@ -367,6 +367,8 @@ class UserCrudController extends AbstractCrudController
         foreach($filters->getWhereParameters() as $name => $where) {
             if (is_string($name) && str_starts_with($name, 'address.')) {
                 $addressFilters[substr($name, 8)] = $where;
+            } elseif (is_string($name) && str_starts_with($name, 'address->')) {
+                $addressFilters[substr($name, 9)] = $where;
             } else {
                 $userFilters[$name] = $where;
             }
