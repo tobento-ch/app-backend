@@ -99,161 +99,160 @@ class UserCrudController extends AbstractCrudController
     {
         $user = $this->request->getAttribute(AuthInterface::class)?->getAuthenticated()?->user();
         
-        $fields = [
-            new Field\PrimaryId('id'),
-            
-            new Field\Radios(name: 'active', label: trans('Active'))
-                ->group(trans('Account'))
-                ->options(['0' => trans('Inactive'), '1' => trans('Active')])
-                ->selected(value: '0', action: 'create')
-                ->validate(store: 'required|bool', update: 'sometimes|required|bool')
-                ->displayInline()
-                ->formatValue(new Field\Formatter\Badge(
-                    classes: ['0' => 'text-error', '1' => 'text-success'],
-                ))
-                ->disabled(
-                    disabled: function(ActionInterface $action) use ($user): bool {
-                        return $action->entity()->id() === $user?->id() ? true : false;
+        yield new Field\PrimaryId('id');
+
+        yield new Field\Radios(name: 'active', label: trans('Active'))
+            ->group(trans('Account'))
+            ->options(['0' => trans('Inactive'), '1' => trans('Active')])
+            ->selected(value: '0', action: 'create')
+            ->validate(store: 'required|bool', update: 'sometimes|required|bool')
+            ->displayInline()
+            ->formatValue(new Field\Formatter\Badge(
+                classes: ['0' => 'text-error', '1' => 'text-success'],
+            ))
+            ->disabled(
+                disabled: function(ActionInterface $action) use ($user): bool {
+                    return $action->entity()->id() === $user?->id() ? true : false;
+                },
+                action: 'edit|update',
+            );
+
+        yield new Field\Select(name: 'role_key', label: trans('Role'))
+            ->group(trans('Account'))
+            ->options($this->acl->roles()->area('backend')->except(['guest'])->column('name', 'key'))
+            ->disabled(disabled: fn(AclInterface $acl) => $acl->cant('users.role'), action: 'edit|update')
+            ->validate(store: 'required', update: 'sometimes|required');
+
+        yield new Field\Checkboxes(name: 'permissions', label: trans('Permissions'))
+            ->group(trans('Account'))
+            ->formatValue(new Field\Formatter\Badge(limit: 5), 'index')
+            ->formatValue(new Field\Formatter\Badge(), 'show')
+            ->creatable(false)
+            ->editable(false);
+
+        yield new Field\Text(name: 'address.name', label: trans('Name'))
+            ->group(trans('Account'))
+            ->validate(store: 'required|string|maxLen:150', update: 'sometimes|required|string|maxLen:150');
+
+        yield new Field\Text(name: 'email', label: trans('E-Mail'))
+            ->group(trans('Account'))
+            ->type('email')
+            ->validate([
+                'required_without:smartphone',
+                'email',
+                'maxLen:150',
+                new Passes(
+                    passes: function(mixed $value, UserRepositoryInterface $repo) use ($action): bool {
+                        if ($action->entity()->get('email') === $value) {
+                            return true;
+                        }
+                        return is_null($repo->findByIdentity(email: $value)) ? true : false;
                     },
-                    action: 'edit|update',
+                    errorMessage: 'E-mail exists already.',
                 ),
-            
-            new Field\Select(name: 'role_key', label: trans('Role'))
-                ->group(trans('Account'))
-                ->options($this->acl->roles()->area('backend')->except(['guest'])->column('name', 'key'))
-                ->disabled(disabled: fn(AclInterface $acl) => $acl->cant('users.role'), action: 'edit|update')
-                ->validate(store: 'required', update: 'sometimes|required'),
-            
-            new Field\Checkboxes(name: 'permissions', label: trans('Permissions'))
-                ->group(trans('Account'))
-                ->formatValue(new Field\Formatter\Badge(limit: 5), 'index')
-                ->formatValue(new Field\Formatter\Badge(), 'show')
-                ->creatable(false)
-                ->editable(false),
-            
-            new Field\Text(name: 'address.name', label: trans('Name'))
-                ->group(trans('Account'))
-                ->validate(store: 'required|string|maxLen:150', update: 'sometimes|required|string|maxLen:150'),
-            
-            new Field\Text(name: 'email', label: trans('E-Mail'))
-                ->group(trans('Account'))
-                ->type('email')
-                ->validate([
-                    'required_without:smartphone',
-                    'email',
-                    'maxLen:150',
-                    new Passes(
-                        passes: function(mixed $value, UserRepositoryInterface $repo) use ($action): bool {
-                            if ($action->entity()->get('email') === $value) {
-                                return true;
-                            }
-                            return is_null($repo->findByIdentity(email: $value)) ? true : false;
-                        },
-                        errorMessage: 'E-mail exists already.',
-                    ),
-                ])
-                ->requiredText(trans('required without smartphone')),
-            
-            new Field\Text(name: 'smartphone', label: trans('Smartphone'))
-                ->group(trans('Account'))
-                ->validate([
-                    'required_without:email',
-                    'digit',
-                    'minLen:8',
-                    'maxLen:150',
-                    new Passes(
-                        passes: function(mixed $value, UserRepositoryInterface $repo) use ($action): bool {
-                            if ($action->entity()->get('smartphone') === $value) {
-                                return true;
-                            }
-                            return is_null($repo->findByIdentity(smartphone: $value)) ? true : false;
-                        },
-                        errorMessage: 'Smartphone exists already.',
-                    ),
-                ])
-                ->requiredText(trans('required without e-mail'))
-                ->infoText(trans('Country code followed by the phone number, e.g. 41791234567')),
-            
-            new Field\Text('password', $action->name() === 'edit' ? trans('New Password') : trans('Password'))
-                ->group(trans('Account'))
-                ->type('password')
-                ->process(
-                    action: 'store|update',
-                    processor: function (
-                        FieldInterface $field,
-                        InputInterface $input,
-                        PasswordHasherInterface $passwordHasher
-                    ): void {
-                        if (! $input->has($field->name())) {
-                            return;
+            ])
+            ->requiredText(trans('required without smartphone'));
+
+        yield new Field\Text(name: 'smartphone', label: trans('Smartphone'))
+            ->group(trans('Account'))
+            ->validate([
+                'required_without:email',
+                'digit',
+                'minLen:8',
+                'maxLen:150',
+                new Passes(
+                    passes: function(mixed $value, UserRepositoryInterface $repo) use ($action): bool {
+                        if ($action->entity()->get('smartphone') === $value) {
+                            return true;
                         }
-                        
-                        if (empty($input->get($field->name()))) {
-                            $input->delete($field->name());
-                            return;
-                        }
-                        
-                        $hashedPassword = $passwordHasher->hash(plainPassword: $input->get($field->name()));
-                        $input->set($field->name(), $hashedPassword);
+                        return is_null($repo->findByIdentity(smartphone: $value)) ? true : false;
+                    },
+                    errorMessage: 'Smartphone exists already.',
+                ),
+            ])
+            ->requiredText(trans('required without e-mail'))
+            ->infoText(trans('Country code followed by the phone number, e.g. 41791234567'));
+
+        yield new Field\Text('password', $action->name() === 'edit' ? trans('New Password') : trans('Password'))
+            ->group(trans('Account'))
+            ->type('password')
+            ->process(
+                action: 'store|update',
+                processor: function (
+                    FieldInterface $field,
+                    InputInterface $input,
+                    PasswordHasherInterface $passwordHasher
+                ): void {
+                    if (! $input->has($field->name())) {
+                        return;
                     }
-                )
-                ->validate(
-                    store: 'required|string|minLen:8|maxLen:150',
-                    update: 'string|minLen:8|maxLen:150',
-                )
-                ->indexable(false)
-                ->showable(false)
-                ->value('')
-                ->attributes(['autocomplete' => 'new-password']),
-            
-            new Field\File(name: 'image', label: 'Avatar')
-                ->group(trans('Account'))
-                ->fileSource(function(Field\FileSource $fs): void {
-                    $fs->allowedExtensions('jpg', 'png');
-                })
-                ->fields(
-                    new Field\Text(name: 'alt', label: trans('Alternative Text')),
-                )
-                ->storeFilenameTo('alt'),
-            
-            new Field\Select(name: 'locale', label: trans('Preferred Language'))
-                ->group(trans('General'))
-                ->options(fn(LanguagesInterface $languages): array => $languages->column('name', 'locale')),
-            
-            new Field\Text(name: 'date_created', label: trans('Registration Date'))
-                ->group(trans('General'))
-                ->type('datetime-local')
-                ->creatable(false)
-                ->formatValue(new Field\Formatter\Date(format: 'EEEE, dd. MMMM yyyy, HH:mm')),
-            
-            new Field\Checkboxes(name: 'settings.preferred_notification_channels', label: trans('Preferred Channels'))
-                ->group(trans('Notifications'))
-                ->options(fn(AvailableChannelsInterface $channels): AvailableChannelsInterface =>
-                    $channels
-                        ->only(['mail', 'sms', 'storage'])
-                        ->withTitle('storage', trans('Account'))
-                        ->sortByTitle()
-                )
-                ->formatValue(
-                    formatter: function(mixed $value): string {
-                        if (!is_array($value)) {
-                            return '';
-                        }
-                        
-                        return $this->channels->only($value)->withTitle('storage', trans('Account'))->titlesToString();
-                    },
-                ),
-            
-            new Field\Radios(name: 'settings.twofactor', label: trans('Two-Factor Authentication'))
-                ->group(trans('Security'))
-                ->options(['0' => trans('Disabled'), '1' => trans('Enabled')])
-                ->selected(value: '0', action: 'create')
-                ->displayInline()
-                ->infoText(trans('When enabled, your account is secured with Two-Factor Authentication.')),
-        ];
+
+                    if (empty($input->get($field->name()))) {
+                        $input->delete($field->name());
+                        return;
+                    }
+
+                    $hashedPassword = $passwordHasher->hash(plainPassword: $input->get($field->name()));
+                    $input->set($field->name(), $hashedPassword);
+                }
+            )
+            ->validate(
+                store: 'required|string|minLen:8|maxLen:150',
+                update: 'string|minLen:8|maxLen:150',
+            )
+            ->indexable(false)
+            ->showable(false)
+            ->value('')
+            ->attributes(['autocomplete' => 'new-password']);
+
+        yield new Field\File(name: 'image', label: 'Avatar')
+            ->group(trans('Account'))
+            ->fileSource(function(Field\FileSource $fs): void {
+                $fs->storage('uploads-public');
+                $fs->allowedExtensions('jpg', 'png');
+            })
+            ->fields(
+                new Field\Text(name: 'alt', label: trans('Alternative Text')),
+            )
+            ->storeFilenameTo('alt');
+
+        yield new Field\Select(name: 'locale', label: trans('Preferred Language'))
+            ->group(trans('General'))
+            ->options(fn(LanguagesInterface $languages): array => $languages->column('name', 'locale'));
+
+        yield new Field\Text(name: 'date_created', label: trans('Registration Date'))
+            ->group(trans('General'))
+            ->type('datetime-local')
+            ->creatable(false)
+            ->formatValue(new Field\Formatter\Date(format: 'EEEE, dd. MMMM yyyy, HH:mm'));
+
+        yield new Field\Checkboxes(name: 'settings.preferred_notification_channels', label: trans('Preferred Channels'))
+            ->group(trans('Notifications'))
+            ->options(fn(AvailableChannelsInterface $channels): AvailableChannelsInterface =>
+                $channels
+                    ->only(['mail', 'sms', 'storage'])
+                    ->withTitle('storage', trans('Account'))
+                    ->sortByTitle()
+            )
+            ->formatValue(
+                formatter: function(mixed $value): string {
+                    if (!is_array($value)) {
+                        return '';
+                    }
+
+                    return $this->channels->only($value)->withTitle('storage', trans('Account'))->titlesToString();
+                },
+            );
+
+        yield new Field\Radios(name: 'settings.twofactor', label: trans('Two-Factor Authentication'))
+            ->group(trans('Security'))
+            ->options(['0' => trans('Disabled'), '1' => trans('Enabled')])
+            ->selected(value: '0', action: 'create')
+            ->displayInline()
+            ->infoText(trans('When enabled, your account is secured with Two-Factor Authentication.'));
         
         if ($action->entity()->id() === $user?->id()) {
-            $fields[] = new Field\Html(name: 'channels')
+            yield new Field\Html(name: 'channels')
                 ->content(function(ViewInterface $view, AvailableChannelsInterface $channels) use ($user): string {
                     return $view->render('user/verification/channels', [
                         'channels' => $channels,
@@ -262,8 +261,6 @@ class UserCrudController extends AbstractCrudController
                 })
                 ->group(trans('Channel Verifications'));
         }
-        
-        return $fields;
     }
     
     /**
