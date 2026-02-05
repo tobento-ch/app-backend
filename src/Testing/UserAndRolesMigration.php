@@ -76,12 +76,14 @@ class UserAndRolesMigration implements MigrationInterface
                         ->withEmail('admin@example.com')
                         ->withRoleKey('administrator')
                         ->withPassword('password')
+                        ->withAddress(['name' => 'Admin User'])
                         ->createOne();
 
                     UserFactory::new(['active' => false])
                         ->withEmail('inactive@example.com')
                         ->withRoleKey('administrator')
                         ->withPassword('password')
+                        ->withAddress(['name' => 'Inactive User'])
                         ->createOne();
 
                     UserFactory::new()
@@ -89,12 +91,14 @@ class UserAndRolesMigration implements MigrationInterface
                         ->withSmartphone('12345678')
                         ->withRoleKey('editor')
                         ->withPassword('password')
+                        ->withAddress(['name' => 'Editor User'])
                         ->createOne();
 
                     UserFactory::new()
                         ->withEmail('registered@example.com')
                         ->withRoleKey('registered')
                         ->withPassword('password')
+                        ->withAddress(['name' => 'Registered User'])
                         ->createOne();
                 },
                 // you may set parameters passed to the callable:
